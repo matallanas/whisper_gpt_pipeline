@@ -7,6 +7,6 @@ class Transcribe(ABC):
     """Interface for concrete Transcribe which transcribes a video object."""
 
     @abstractmethod
-    def apply(self, product: RawVideo) -> TranscribedVideo:
+    def apply(self, video: RawVideo) -> TranscribedVideo:
         """Apply a transcription to a video. Method must be implemented by
         concrete transcribers."""
