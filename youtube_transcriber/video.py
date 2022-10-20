@@ -29,7 +29,7 @@ class TranscribedVideo(BaseModel):
     
     def to_tuple(self) -> Tuple:
         """Convert TranscribedVideo object to a tuple of the type:
-        (channel_name, url).
+        (channel_name, url, title, description, transcription, segments).
         """
         return (self.channel_name, self.url, self.title,
                 self.description, self.transcription, self.segments)
