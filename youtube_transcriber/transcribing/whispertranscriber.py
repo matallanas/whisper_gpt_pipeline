@@ -4,13 +4,13 @@ from pathlib import Path
 from pytube import YouTube
 import whisper
 
-from youtube_transcriber.transcribing.transcribe import Transcribe
+from youtube_transcriber.transcribing.transcribe import Transcriber
 from youtube_transcriber.video import RawVideo, TranscribedVideo
 
-class WhisperTranscriber(Transcribe):
+class WhisperTranscriber(Transcriber):
     """
     Transcribe a Video object using Whisper model. It's a
-    concrete Tranascriber.
+    concrete Transcriber.
     Args:
         model (`str`):
             Size of Whisper model. Can be tiny, base (default), small, medium, and large.

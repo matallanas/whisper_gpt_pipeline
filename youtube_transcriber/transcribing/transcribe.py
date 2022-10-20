@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from youtube_transcriber.video import RawVideo, TranscribedVideo
 
 
-class Transcribe(ABC):
+class Transcriber(ABC):
     """Interface for concrete Transcribe which transcribes a video object."""
 
     @abstractmethod
