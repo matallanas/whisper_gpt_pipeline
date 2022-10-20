@@ -8,17 +8,14 @@ class RawVideo(BaseModel):
     """
     channel_name: str
     url: str
-    title: Optional[str]
-    description: Optional[str]
-    
+
     # TODO: Add URL validator
 
     def to_tuple(self) -> Tuple:
         """Convert RawVideo object to a tuple of the type:
         (channel_name, url).
         """
-        return (self.channel_name, self.url,
-                self.title, self.description)
+        return (self.channel_name, self.url)
 
 class TranscribedVideo(BaseModel):
     """This class represent a video entry after transcription

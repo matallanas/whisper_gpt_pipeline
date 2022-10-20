@@ -4,28 +4,20 @@ from youtube_transcriber.video import RawVideo, TranscribedVideo
 
 def test_raw_video_init():
     video = RawVideo(channel_name="The verge",
-                     url="https://www.youtube.com/watch?v=YMlTSmusEmA",
-                     title="Pixel 7 Pro and 7 hands-on: more of the same",
-                     description="Google’s Pixel 7 and 7 Pro...")
+                     url="https://www.youtube.com/watch?v=YMlTSmusEmA")
     
     assert type(video) == RawVideo
     assert video.channel_name == "The verge"
     assert video.url == "https://www.youtube.com/watch?v=YMlTSmusEmA"
-    assert video.title == "Pixel 7 Pro and 7 hands-on: more of the same"
-    assert video.description == "Google’s Pixel 7 and 7 Pro..."
     
 def test_raw_video_to_tuple():
     video = RawVideo(channel_name="The verge",
-                     url="https://www.youtube.com/watch?v=YMlTSmusEmA",
-                     title="Pixel 7 Pro and 7 hands-on: more of the same",
-                     description="Google’s Pixel 7 and 7 Pro...")
+                     url="https://www.youtube.com/watch?v=YMlTSmusEmA")
     video_tuple = video.to_tuple()
-    assert len(video_tuple) == 4
+    assert len(video_tuple) == 2
     assert type(video_tuple) == tuple
     assert video_tuple[0] == "The verge"
     assert video_tuple[1] == "https://www.youtube.com/watch?v=YMlTSmusEmA"
-    assert video_tuple[2] == "Pixel 7 Pro and 7 hands-on: more of the same"
-    assert video_tuple[3] == "Google’s Pixel 7 and 7 Pro..."
     
 def test_transcribed_video_init():
     video = TranscribedVideo(channel_name="The verge",

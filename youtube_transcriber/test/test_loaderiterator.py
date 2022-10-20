@@ -25,9 +25,7 @@ def test_loop_through_loaded_data(loader_iterator):
         [
             {
                 "channel_name": "The verge",
-                "url": "https://www.youtube.com/watch?v=YMlTSmusEmA",
-                "title": "Pixel 7 Pro and 7 hands-on: more of the same",
-                "description": "Google’s Pixel 7 and 7 Pro..."
+                "url": "https://www.youtube.com/watch?v=YMlTSmusEmA"
             },
             {
                 "channel_name": "The verge",
