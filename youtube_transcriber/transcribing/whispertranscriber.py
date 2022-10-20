@@ -44,6 +44,8 @@ class WhisperTranscriber(Transcriber):
 
         return TranscribedVideo(channel_name = RawVideo.channel_name,
                                 url = RawVideo.url,
+                                title = RawVideo.title,
+                                description = RawVideo.title,
                                 transcription = transcription,
                                 segments = data)
         

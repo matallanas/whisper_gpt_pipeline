@@ -8,6 +8,8 @@ class RawVideo(BaseModel):
     """
     channel_name: str
     url: str
+    title: Optional[str]
+    description: Optional[str]
     
     # TODO: Add URL validator
 
@@ -15,13 +17,16 @@ class RawVideo(BaseModel):
         """Convert RawVideo object to a tuple of the type:
         (channel_name, url).
         """
-        return (self.channel_name, self.url)
+        return (self.channel_name, self.url,
+                self.title, self.description)
 
 class TranscribedVideo(BaseModel):
     """This class represent a video entry after transcription
     """
     channel_name: str
     url: str
+    title: Optional[str]
+    description: Optional[str]
     transcription: str
     segments: Optional[List[Dict]] = None
     
@@ -29,5 +34,5 @@ class TranscribedVideo(BaseModel):
         """Convert TranscribedVideo object to a tuple of the type:
         (channel_name, url).
         """
-        return (self.channel_name, self.url, 
-                self.transcription, self.segments)
+        return (self.channel_name, self.url, self.title,
+                self.description, self.transcription, self.segments)
