@@ -48,8 +48,8 @@ class WhisperTranscriber(Transcriber):
 
         os.remove(audio_file)
 
-        return TranscribedVideo(channel_name = RawVideo.channel_name,
-                                url = RawVideo.url,
+        return TranscribedVideo(channel_name = raw_video.channel_name,
+                                url = raw_video.url,
                                 title = self._get_video_title(yt),
                                 description = self._get_video_description(yt),
                                 transcription = transcription,
