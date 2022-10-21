@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from typing import Any
+from collections import OrderedDict
 
 from pytube import YouTube
 import whisper
@@ -44,7 +45,7 @@ class WhisperTransform(Transform):
         
         data = []
         for seg in result['segments']:
-            data.append({'start': seg['start'], 'end': seg['end'],'text': seg['text']})
+            data.append(OrderedDict({'start': seg['start'], 'end': seg['end'],'text': seg['text']}))
 
         os.remove(audio_file)
 
