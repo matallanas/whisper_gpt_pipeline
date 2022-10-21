@@ -49,11 +49,11 @@ class WhisperTransform(Transform):
         os.remove(audio_file)
 
         return YoutubeVideo(channel_name = video.channel_name,
-                                url = video.url,
-                                title = video.title,
-                                description = video.description,
-                                transcription = transcription,
-                                segments = data)
+                            url = video.url,
+                            title = video.title,
+                            description = video.description,
+                            transcription = transcription,
+                            segments = data)
         
     def _get_audio_from_video(self, yt: Any) -> Path:
         # TODO: Add credits

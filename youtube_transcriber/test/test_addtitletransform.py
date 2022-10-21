@@ -1,7 +1,7 @@
 from youtube_transcriber.transforming.addtitletransform import AddTitleTransform
 from youtube_transcriber.video import YoutubeVideo
 
-def test_whisper_transform_init():
+def test_add_title_transform_init():
     transform = AddTitleTransform()
     assert type(transform) == AddTitleTransform
     

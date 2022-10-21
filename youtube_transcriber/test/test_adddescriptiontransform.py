@@ -1,7 +1,7 @@
 from youtube_transcriber.transforming.adddescriptiontransform import AddDescriptionTransform
 from youtube_transcriber.video import YoutubeVideo
 
-def test_whisper_transform_init():
+def test_add_description_transform_init():
     transform = AddDescriptionTransform()
     assert type(transform) == AddDescriptionTransform
     
