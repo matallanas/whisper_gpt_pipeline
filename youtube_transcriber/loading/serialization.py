@@ -13,7 +13,6 @@ class Serializer(ABC):
     def load(self, load_path: Path) -> Any:
         pass
 
-
 class JsonSerializer(Serializer):
 
     def __init__(self,
