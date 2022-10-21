@@ -5,14 +5,14 @@ from typing import Any
 from pytube import YouTube
 import whisper
 
-from youtube_transcriber.transcribing.transcribe import Transcriber
-from youtube_transcriber.video import RawVideo, TranscribedVideo
+from youtube_transcriber.transforming.transform import Transform
+from youtube_transcriber.video import YoutubeVideo
 from youtube_transcriber.utils import accepts_types
 
-class WhisperTranscriber(Transcriber):
+class WhisperTransform(Transform):
     """
-    Transcribe a Video object using Whisper model. It's a
-    concrete Transcriber.
+    Transform a Video object using Whisper model. It's a
+    concrete Transform.
     Args:
         model (`str`):
             Size of Whisper model. Can be tiny, base (default), small, medium, and large.
@@ -24,12 +24,12 @@ class WhisperTranscriber(Transcriber):
         self.model = whisper.load_model(model)
         self.without_timestamps = without_timestamps
 
-    @accepts_types(RawVideo) 
-    def apply(self, raw_video: RawVideo) -> TranscribedVideo:
+    @accepts_types(YoutubeVideo) 
+    def apply(self, video: YoutubeVideo) -> YoutubeVideo:
         """Creates a new video with transcriptions created by Whisper.
         """
         # Create a YouTube object
-        yt = YouTube(raw_video.url)
+        yt = YouTube(video.url)
         
         # Get audio from video
         try:
@@ -48,10 +48,10 @@ class WhisperTranscriber(Transcriber):
 
         os.remove(audio_file)
 
-        return TranscribedVideo(channel_name = raw_video.channel_name,
-                                url = raw_video.url,
-                                title = self._get_video_title(yt),
-                                description = self._get_video_description(yt),
+        return YoutubeVideo(channel_name = video.channel_name,
+                                url = video.url,
+                                title = video.title,
+                                description = video.description,
                                 transcription = transcription,
                                 segments = data)
         
@@ -63,9 +63,3 @@ class WhisperTranscriber(Transcriber):
         new_file = base + ".mp3"
         os.rename(out_file, new_file)
         return new_file
-    
-    def _get_video_title(self, yt: Any) -> str:
-        return str(yt.title)
-    
-    def _get_video_description(self, yt: Any) -> str:
-        return str(yt.description)
