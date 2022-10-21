@@ -17,7 +17,7 @@ class AddDescriptionTransform(Transform):
         
         yt = YouTube(video.url)
         
-        video_With_title_params = {
+        video_With_description_params = {
             "channel_name": video.channel_name,
             "url": video.url,
             "title": video.title,
@@ -26,7 +26,7 @@ class AddDescriptionTransform(Transform):
             "segments": video.segments
         }
         
-        return YoutubeVideo(**video_With_title_params)
+        return YoutubeVideo(**video_With_description_params)
     
     def _get_video_description(self, yt: Any) -> str:
         return str(yt.description)
