@@ -3,6 +3,7 @@ from pathlib import Path
 from sqlite3 import Cursor
 
 from youtube_transcriber.utils import accepts_types, create_videos
+from youtube_transcriber.preprocessing.youtubevideopreprocessor import YoutubeVideoPreprocessor
 from youtube_transcriber.loading.loaderiterator import LoaderIterator
 from youtube_transcriber.transforming.batchtransformer import BatchTransformer
 from youtube_transcriber.storing.sqlitebatchvideostorer import SQLiteBatchVideoStorer
@@ -18,18 +19,21 @@ class DataPipeline:
     """
     
     def __init__(self,
+                 video_preprocessor: YoutubeVideoPreprocessor,
                  loader_iterator: LoaderIterator,
                  batch_transformer: BatchTransformer,
                  storer: SQLiteBatchVideoStorer,
                  sqlite_context_manager: SQLiteContextManager) -> None:
+        self.video_preprocessor = video_preprocessor
         self.loader_iterator = loader_iterator
         self.batch_transformer = batch_transformer
         self.storer = storer
         self.sqlite_context_manager = sqlite_context_manager
         
     @accepts_types(list)
-    def process(self, load_paths: List[Path]) -> None:
+    def process(self, channel_name: str, num_videos: int) -> None:
         """Process files in batches: preprocess -> load -> transform -> store to db."""
+        load_paths = self.video_preprocessor.preprocess(channel_name, num_videos)
         self.loader_iterator.load_paths = load_paths
         with self.sqlite_context_manager as db_cursor:
             for video_data_batch in self.loader_iterator:
@@ -47,6 +51,7 @@ def create_hardcoded_data_pipeline() -> DataPipeline:
     default arguments. 
     TODO: Create DataPipeline so users can pass the args.
     """
+    yt_video_preprocessor = YoutubeVideoPreprocessor()
     loader_iterator = LoaderIterator(JsonSerializer(), 2)
     # Whisper transform using based model and timestamps
     # TODO: Let user select this parameters.
@@ -55,7 +60,8 @@ def create_hardcoded_data_pipeline() -> DataPipeline:
                                           WhisperTransform()])
     video_storer = SQLiteBatchVideoStorer()
     sqlite_context_manager = SQLiteContextManager("video.db")
-    return DataPipeline(loader_iterator,
+    return DataPipeline(yt_video_preprocessor,
+                        loader_iterator,
                         batch_transformer,
                         video_storer,
                         sqlite_context_manager)   

@@ -30,3 +30,19 @@ def test_created_file(youtube_video_preprocessor, expected_file_paths):
     for path in youtube_video_preprocessor:
         assert os.path.exists(expected_file_paths[0]) == True
         assert os.path.exists(expected_file_paths[1]) == True
+
+def test_loop_through_created_files(youtube_video_preprocessor):
+    expected_data = [
+        {
+            "channel_name": "Best Shorts Quotes",
+            "url": "https://www.youtube.com/watch?v=gCDDwSvLWAc"
+        },
+        {
+            "channel_name": "Best Shorts Quotes",
+            "url": "https://www.youtube.com/watch?v=qHROOk7NEkk"
+        }
+    ]
+    
+    for i, path in enumerate(youtube_video_preprocessor):
+        serializer = JsonSerializer()
+        assert serializer.load(path) == expected_data[i]
