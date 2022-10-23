@@ -1,3 +1,6 @@
+from typing import Dict, List
+
+from youtube_transcriber.video import YoutubeVideo
 from youtube_transcriber.errors import DifferentNumberOfArgumentsError
 
 def accepts_types(*expected_types):
@@ -27,3 +30,9 @@ def _raise_type_error_if_passed_and_expected_types_dont_match(passed_args, expec
         if not isinstance(arg, expected_type):
             raise TypeError(f"Argument '{arg}' is of type {type(arg)}. "
                             f"'{expected_type}' expected instead")
+
+def create_videos(video_parameters: List[Dict]) -> List[YoutubeVideo]:
+    """Factory function that creates a list of YoutubeVideos from a list of
+    dictionaries representing video parameters
+    """
+    return [YoutubeVideo(*p) for p in video_parameters]

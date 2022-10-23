@@ -23,6 +23,6 @@ class SQLiteBatchVideoStorer:
     @staticmethod 
     def _convert_videos_to_list(videos: List[YoutubeVideo]) -> List[Tuple[str, str, str, str, str, str]]:
         for video in videos:
-            # TODO: Search best way to solve this
+            # TODO: Find better way to solve this
             video.segments = json.dumps(video.segments)
         return [video.to_tuple() for video in videos]
