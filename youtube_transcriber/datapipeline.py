@@ -1,5 +1,4 @@
 from typing import Dict, List
-from pathlib import Path
 from sqlite3 import Cursor
 
 from youtube_transcriber.utils import accepts_types, create_videos
@@ -30,8 +29,10 @@ class DataPipeline:
         self.storer = storer
         self.sqlite_context_manager = sqlite_context_manager
         
-    @accepts_types(list)
-    def process(self, channel_name: str, num_videos: int) -> None:
+    # @accepts_types(str, int) TODO: Check bug here
+    def process(self, 
+                channel_name: str, 
+                num_videos: int) -> None:
         """Process files in batches: preprocess -> load -> transform -> store to db."""
         load_paths = self.video_preprocessor.preprocess(channel_name, num_videos)
         self.loader_iterator.load_paths = load_paths
@@ -44,7 +45,7 @@ class DataPipeline:
                              video_data_batch: List[Dict]) -> None:
         videos = create_videos(video_data_batch)
         transformed_videos = self.batch_transformer.apply(videos)
-        self.storer.store(transformed_videos)
+        self.storer.store(db_cursor, transformed_videos)
 
 def create_hardcoded_data_pipeline() -> DataPipeline:
     """Factory function to create a DataPipeline with 

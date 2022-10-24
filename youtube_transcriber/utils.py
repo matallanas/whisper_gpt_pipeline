@@ -35,4 +35,9 @@ def create_videos(video_parameters: List[Dict]) -> List[YoutubeVideo]:
     """Factory function that creates a list of YoutubeVideos from a list of
     dictionaries representing video parameters
     """
-    return [YoutubeVideo(*p) for p in video_parameters]
+    youtube_videos = []
+    for params in video_parameters:
+        youtube_video = YoutubeVideo(channel_name=params["channel_name"],
+                                     url=params["url"])
+        youtube_videos.append(youtube_video)
+    return youtube_videos

@@ -11,7 +11,7 @@ class SQLiteBatchVideoStorer:
     def __init__(self, table: str = "video"):
         self.table = table
     
-    @accepts_types(sqlite3.Cursor, list) 
+    @accepts_types(sqlite3.Cursor, list)
     def store(self,
               db_cursor: sqlite3.Cursor,
               videos: List[YoutubeVideo]) -> None:

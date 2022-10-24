@@ -55,6 +55,6 @@ class YoutubeVideoPreprocessor:
             save_path.touch(exist_ok=True)
             video_dict = {"channel_name": name, 
                           "url":f"https://www.youtube.com/watch?v={video['videoId']}"}
-            self.serializer.dump(video_dict, save_path)
+            self.serializer.dump(obj=video_dict, save_path=save_path)
             load_paths.append(save_path)
         return load_paths
