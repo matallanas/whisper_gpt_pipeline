@@ -3,6 +3,8 @@ import os
 import argparse
 import sqlite3
 
+from datasets import Dataset
+
 from youtube_transcriber.storing.createdb import create_db
 from youtube_transcriber.preprocessing.youtubevideopreprocessor import YoutubeVideoPreprocessor
 from youtube_transcriber.loading.serialization import JsonSerializer
@@ -53,8 +55,14 @@ def main():
     cursor = connection.cursor()
     cursor.execute("SELECT CHANNEL_NAME, URL, TITLE, DESCRIPTION, TRANSCRIPTION, SEGMENTS FROM VIDEO")
     videos = cursor.fetchall()
-    print(videos)
     print(len(videos))
+    
+    # TODO: Let users define the hf_data_identifier
+    hf_dataset_identifier = "Whispering-GPT/test_whisper"
+    
+    dataset = Dataset.from_sql("SELECT CHANNEL_NAME, URL, TITLE, DESCRIPTION, TRANSCRIPTION, SEGMENTS FROM VIDEO", connection)
+    
+    dataset.push_to_hub(hf_dataset_identifier)
     
     # Remove db
     os.remove("test.db")
