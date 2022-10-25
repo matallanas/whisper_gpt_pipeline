@@ -55,7 +55,7 @@ def create_hardcoded_data_pipeline() -> DataPipeline:
                                           AddDescriptionTransform(),
                                           WhisperTransform()])
     video_storer = SQLiteBatchVideoStorer()
-    sqlite_context_manager = SQLiteContextManager("video.db")
+    sqlite_context_manager = SQLiteContextManager("test.db")
     return DataPipeline(loader_iterator,
                         batch_transformer,
                         video_storer,

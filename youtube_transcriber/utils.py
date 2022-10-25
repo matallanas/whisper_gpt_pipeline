@@ -41,3 +41,15 @@ def create_videos(video_parameters: List[Dict]) -> List[YoutubeVideo]:
                                      url=params["url"])
         youtube_videos.append(youtube_video)
     return youtube_videos
+
+def nest_list(list: list, nested_list_length: int) -> List[List]:
+    new_list = []
+    nested_list = []
+    for item in list:
+        nested_list.append(item)
+        if len(nested_list) == nested_list_length:
+            new_list.append(nested_list)
+            nested_list = []
+    if len(nested_list) != 0:
+        new_list.append(nested_list)
+    return new_list
