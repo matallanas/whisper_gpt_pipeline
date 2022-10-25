@@ -12,7 +12,7 @@ from youtube_transcriber.utils import nest_list
 from youtube_transcriber.datapipeline import create_hardcoded_data_pipeline
 from youtube_transcriber.threadeddatapipeline import ThreadedDataPipeline
 
-NUM_THREADS = 4
+NUM_THREADS = 2
 
 def parse_args():
     parser = argparse.ArgumentParser(usage="[arguments] --channel_name --num_videos",
