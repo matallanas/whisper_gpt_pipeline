@@ -2,31 +2,41 @@ import whisper
 import click
 import yt_dlp
 import os
+import json
+import functools
+
+def hook(d,data):
+    if d['status'] == 'finished':
+        select=["title","categories","tags"]
+        data[d["info_dict"]["id"]] = {key: d["info_dict"][key] for key in select}
 
 @click.command()
-@click.option('--url', prompt='Youtube URL',
-              help='The person to greet.')
+@click.option('--url', help='The person to greet.')
 def download_url(url, download_path="tmp"):
   """
   A way to trascribe a Youtube video
   """
-  #URL = ['https://www.youtube.com/watch?v=uUkWJBmhOdw&ab_channel=StarTalk']
-
+  
+  data = {}
   ydl_opts = {
-    'format': 'bestaudio/best',
-    'extractaudio': True,
-    'audioformat': 'mp3',
-    'yesplaylist': True,
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
+    "format": "bestaudio/best",
+    "extractaudio": True,
+    "audioformat": "mp3",
+    "yesplaylist": True,
+    "postprocessors": [{
+        "key": "FFmpegExtractAudio",
+        "preferredcodec": "mp3",
+        "preferredquality": "192",
     }],
     "outtmpl": os.path.join(download_path,"%(id)s.%(ext)s"),
-    "downloadarchive": "video_record.txt"
+    "progress_hooks": [functools.partial(hook, data=data)],
+    "download_archive": "video_record.txt"
   }
+
   with yt_dlp.YoutubeDL(ydl_opts) as ydl:
     ydl.download(url)
+
+  return data
   
 
 def transcribe(file="example_audio.mp3"):
