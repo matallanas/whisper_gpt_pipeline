@@ -1,90 +1,81 @@
-import whisper
 import click
-import yt_dlp
-import os
-import json
-import functools
 import pandas as pd
+from downloader import WhisperPP, YoutubeDownloader
 from interpreter import WhisperInterpreter
-from utils import VIDEO_INFO
+from datasets import load_dataset
 
-def hook(d,data):
-  if d['status'] == 'finished':
-    select=["title","categories","tags"]
-    data[d["info_dict"]["id"]] = {key: d["info_dict"][key] for key in select}
+_global_options = [
+  click.option("--model-size", default="base", help="Size of the model to use to transcribe"),
+  click.option("--language", "-l", help="Language of the video"),
+  click.option('--transcribe', 'mode', flag_value='transcribe', default=True),
+  click.option('--translate', 'mode', flag_value='translate'),
+  click.option("--write", "-w", is_flag=True, show_default=True, default=False, help="Write result in json.")
+]
+
+def global_options(func):
+  for option in reversed(_global_options):
+    func = option(func)
+  return func
 
 @click.group()
 def cli():
   pass
 
-# ℹ️ See help(yt_dlp.postprocessor.PostProcessor)
-class MyCustomPP(yt_dlp.postprocessor.PostProcessor):
-  def __init__(self,data,model_size):
-    super().__init__()
-    self.interpreter = WhisperInterpreter(model_size)
-    self.data = data
-  
-  def run(self, info):
-    self.to_screen('Doing stuff')
-    #select=["id","channel","channel_id","title","categories","tags","description"]
-    result = {key: info[key] for key in VIDEO_INFO}
-    result["text"] = self.interpreter.transcribe(info["filepath"])["text"]
-    self.data.append(result)
-    #self.data[info['id']]["transcript"] = result["text"]
-    #print(self.data)
-    #with open("post_process.json","w") as outfile:
-    #  json.dump(info,outfile)
-    #print(info)
-    return [], info
-
-
 @cli.command()
-#@click.option('--url', help='The url to download.')
-@click.argument('url')
-def download_url(url, download_path="tmp"):
+@click.argument("url")
+@click.option("--download-path", "-d", default="tmp/", help="Path to download and store files")
+@global_options
+def download_url(url, download_path, model_size, language, mode, write):
   """
   Download a Youtube video and convert to mp3
   """
-  
   data = []
-  ydl_opts = {
-    "format": "bestaudio/best",
-    "extractaudio": True,
-    "audioformat": "mp3",
-    "yesplaylist": True,
-    "postprocessors": [{
-      "key": "FFmpegExtractAudio",
-      "preferredcodec": "mp3",
-      "preferredquality": "192",
-    }],
-    "outtmpl": os.path.join(download_path,"%(id)s.%(ext)s"),
-    #"progress_hooks": [functools.partial(hook, data=data)],
-    #"download_archive": "video_record.txt"
-  }
-
-  with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-    ydl.add_post_processor(MyCustomPP(data,"base"), when='post_process')
-    ydl.download(url)
-
-  print(pd.DataFrame(data))
+  whisper_options = dict(
+    model_size=model_size,
+    mode=mode,
+    language =language,
+    write=write
+  )
+  whisperPP = WhisperPP(data, **whisper_options)
+  downloader = YoutubeDownloader(download_path)
+  downloader.download(url, whisperPP)
   return data
-  
 
 @cli.command()
-@click.option('--file-path', help="Path to the audio file")
-@click.option('--model-size', default="base", help="Size of the model to use to transcribe")
-@click.option('--language', help="Language of the video")
-@click.option('--transcribe', 'mode', flag_value='transcribe', default=True)
-@click.option('--translate', 'mode', flag_value='translate')
-def interpret(file_path, model_size, language, mode):
+@click.argument("file_path", type=click.Path(exists=True))
+@global_options
+def interpret(file_path, model_size, language, mode, write):
+  """
+  Transcribe or a tranlate a local file
+  """
   interpreter = WhisperInterpreter(model_size)
-  options = dict()
-  if language is not None:
-    options["language"] = language
-    print(language)
-  #options = dict(language=language)
+  options = dict(language = language, write = write)
   process = getattr(interpreter, mode)
   result = process(file_path, **options)
+  print(result)
+
+@cli.command()
+@click.argument("name")
+@click.argument("url")
+@click.option("--download-path", "-d", default="tmp/", help="Path to download and store files")
+@global_options
+@click.pass_context
+def dataset(ctx, name, url, download_path, model_size, language, mode, write):
+  """
+  Add the transcript of Youtube videos to a Hugging Face dataset
+  """
+
+  #dataset = load_dataset(name)
+  print(name)
+  params = dict(
+    url=url,
+    download_path=download_path,
+    model_size=model_size,
+    language=language,
+    mode=mode,
+    write=write
+  )
+  result = ctx.invoke(download_url, **params)
   print(result)
 
 if __name__ == "__main__":
