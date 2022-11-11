@@ -1,0 +1,8 @@
+name: whisper
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - pip=22.2.2
+  - pip:
+    - -r requirements.txt

@@ -11,6 +11,11 @@ VIDEO_INFO = [
               "description"
             ]
 
+TRANSCRIPT_INFO = [
+                  "text",
+                  "segments"
+                ]
+
 SEGMENTS_INFO = [
                   "start",
                   "end",
