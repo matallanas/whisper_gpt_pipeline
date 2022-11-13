@@ -13,7 +13,9 @@ class WhisperPP(PostProcessor):
     self._process = getattr(interpreter, self._options.pop("mode","transcribe"))
     self._write = self._options.pop("write")
     self.videos_to_process = self._options.pop("number_videos",0)
-    self.repoId = self._get_name()
+    print(self.videos_to_process)
+    self.repoId = self._options.pop("repoId",self._get_name():quit)
+    print(self.repoId)
   
   def run(self, info):
     self.to_screen(f"Processing Video {info['id']}")
@@ -31,7 +33,7 @@ class WhisperPP(PostProcessor):
       self.data.append(record)
     else:
       self.data = self.data.add_item(record)
-      if self.data.num_rows >= self.videos_to_process and self.videos_to_process != 0:
+      if self.data.num_rows%self.videos_to_process==0 and self.videos_to_process != 0:
         self.data.push_to_hub(self.repoId)
 
   def get_data(self):

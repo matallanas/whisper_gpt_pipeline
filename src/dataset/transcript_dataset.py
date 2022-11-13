@@ -24,7 +24,8 @@ class TranscriptDataset(HFDataset):
     else:
       #emptyDataset=self.dataset["train"].filter(lambda e: e["id"] is None)
       emptyDataset=self.dataset["train"]
-    whisper_config["number_videos"] = 5
+    print(self.dataset.info)
+    whisper_config["repoId"] = self.name
     whisperPP = WhisperPP(emptyDataset, **whisper_config)
     downloader = YoutubeDownloader(download_path)
     if not overwrite:

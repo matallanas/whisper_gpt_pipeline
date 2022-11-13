@@ -113,7 +113,7 @@ def dataset(name, input, download_path, upload, model_size, language, mode, writ
 
     ds = TranscriptDataset(name)
     overwrite = False
-    params = dict(model_size=model_size, language=language, write=write, number_videos=500)
+    params = dict(model_size=model_size, language=language, write=write, number_videos=1000)
     ds.generate_dataset(input, download_path, overwrite, params)
     if upload or (overwrite and name != ""):
        ds.upload()
