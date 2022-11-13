@@ -14,7 +14,7 @@ class WhisperPP(PostProcessor):
     self._write = self._options.pop("write")
     self.videos_to_process = self._options.pop("number_videos",0)
     print(self.videos_to_process)
-    self.repoId = self._options.pop("repoId",self._get_name():quit)
+    self.repoId = self._options.pop("repoId",self._get_name())
     print(self.repoId)
   
   def run(self, info):
