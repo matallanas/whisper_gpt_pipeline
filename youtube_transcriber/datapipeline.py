@@ -43,7 +43,7 @@ class DataPipeline:
         transformed_videos = self.batch_transformer.apply(videos)
         self.storer.store(db_cursor, transformed_videos)
 
-def create_hardcoded_data_pipeline() -> DataPipeline:
+def create_hardcoded_data_pipeline(whisper_model: str="base") -> DataPipeline:
     """Factory function to create a DataPipeline with 
     default arguments. 
     TODO: Create DataPipeline so users can pass the args.
@@ -53,7 +53,7 @@ def create_hardcoded_data_pipeline() -> DataPipeline:
     # TODO: Let user select this parameters.
     batch_transformer = BatchTransformer([AddTitleTransform(),
                                           AddDescriptionTransform(),
-                                          WhisperTransform()])
+                                          WhisperTransform(model=whisper_model)])
     video_storer = SQLiteBatchVideoStorer()
     sqlite_context_manager = SQLiteContextManager("test.db")
     return DataPipeline(loader_iterator,
