@@ -11,24 +11,11 @@ VIDEO_INFO = [
               "description"
             ]
 
-TRANSCRIPT_INFO = [
-                  "text",
-                  "segments"
-                ]
+TRANSCRIPT_INFO = ["text", "segments"]
 
-SEGMENTS_INFO = [
-                  "start",
-                  "end",
-                  "text"
-                ]
+SEGMENTS_INFO = ["start", "end", "text"]
 
-AUDIO_FILES = [
-                ".webm",
-                ".mp3",
-                ".flac",
-                ".wav",
-                ".m4a"
-              ]
+AUDIO_FILES = [".webm", ".mp3", ".flac", ".wav", ".m4a"]
 
 YT_OPTIONS = {
               "format": "bestaudio/best",

@@ -1,11 +1,23 @@
+import re
+from typing import Any, Optional, Union
 from interpreter import WhisperInterpreter
 from utils import VIDEO_INFO, json_dump
 from yt_dlp.postprocessor import PostProcessor
 from datasets import Dataset
-import re
+
 
 class WhisperPP(PostProcessor):
-  def __init__(self,data,**whisper_options):
+  """Create a whisper postprocessor after downloading and extracting the audio 
+  from a video.
+  """
+
+  def __init__(self, data: Union[list,Dataset], **whisper_options: Optional[Any]):
+    """Initialize the dataset to process information.
+
+    Args:
+      data: list or Dataset, Data structure to fill with the result of the transcription.
+      **whisper_options: Optional[Any], Options to process the audio with whisper.
+    """
     super().__init__()
     self._options = whisper_options
     interpreter = WhisperInterpreter(self._options.pop("model_size","base"))
@@ -13,11 +25,18 @@ class WhisperPP(PostProcessor):
     self._process = getattr(interpreter, self._options.pop("mode","transcribe"))
     self._write = self._options.pop("write")
     self.videos_to_process = self._options.pop("number_videos",0)
-    print(self.videos_to_process)
     self.repoId = self._options.pop("repoId",self._get_name())
-    print(self.repoId)
+    self.token = self._options.pop("token",None)
   
-  def run(self, info):
+  def run(self, info: Any):
+    """Runs the process the audio extracted from the video through whisper.
+
+    Args:
+      info: Any, All the info extracted and tags from the video doenloaded.
+
+    Returns:
+      (list, Any): An empty list and an object needed by the yt_dlp library.
+    """
     self.to_screen(f"Processing Video {info['id']}")
     result = {key: info[key] for key in VIDEO_INFO}
     result.update(self._process(info["filepath"], **self._options))
@@ -27,23 +46,39 @@ class WhisperPP(PostProcessor):
       json_dump(result, f"{info['filepath'].split('.')[0]}.json")
     return [], info
 
-  def _update_data(self, record):
+  def _update_data(self, record: dict):
+    """Update the data of the transcribed record added to a hugging face dataset 
+    or to a list.
+
+    Args:
+      record: dict, Transcription of the video.
+    """
     dataType = type(self.data)
     if dataType == list:
       self.data.append(record)
     else:
       self.data = self.data.add_item(record)
-      if self.data.num_rows%self.videos_to_process==0 and self.videos_to_process != 0:
-        self.data.push_to_hub(self.repoId)
+      if self.videos_to_process != 0 and self.data.num_rows%self.videos_to_process==0:
+        self.data.push_to_hub(repo_id=self.repoId, token=self.token)
 
   def get_data(self):
-    return self.data
+    """Get the current data.
 
+    Returns:
+      list or Dataset: Get the dataset update after processing the video, list or 
+      playlist.
+    """
+    return self.data
+  
   def _get_name(self):
-    if self.data.info.download_checksums is not None:
+    """Get name of the dataset.
+
+    Returns:
+        str: Id of the repository.
+    """
+    if type(self.data) is Dataset and self.data.info.download_checksums is not None:
       regex = r"(?<=datasets\/)(.*?)(?=\/resolve)"
       repoId = re.compile(regex)
       url = list(self.data.info.download_checksums.keys())[0]
       return repoId.findall(url)[0]
     return ""
-    
