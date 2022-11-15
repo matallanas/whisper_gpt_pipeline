@@ -1,6 +1,5 @@
 import gradio as gr
 import tensorflow as tf
-import datasets
 from notebooks.starter_model_training import tokenize_function, create_dataset, compile_model, gen_text
 '''
 We want to create an application that allows the user to select a dataset from a specified list
@@ -17,6 +16,7 @@ def train_model(dat, epochs, model_checkpoint):
     # trains model given parameters
 
     model = compile_model(model_checkpoint=model_checkpoint)
+    print(dat)
 
     ds = create_dataset(dat)
     tok_data = tokenize_function(ds, model_checkpoint)
@@ -26,7 +26,10 @@ def train_model(dat, epochs, model_checkpoint):
 
     return model
 
+def generate_text(model_checkpoint, seed_text):
 
+    output = gen_text(model_checkpoint=model_checkpoint, model=MODEL, seed_text=seed_text)
+    return output
 
 
 # App Construction
@@ -54,7 +57,7 @@ with demo:
             create_text = gr.Button("Generate some text!")
     with gr.Row():
         text_output = gr.Textbox(value = "Generated text will appear here")
-        create_text.click(gen_text, inputs = [model_checkpoint, MODEL, seed_text, 3], outputs=[text_output])
+        create_text.click(generate_text, inputs = [model_checkpoint, seed_text], outputs=[text_output])
 
     
     begin_training.click(train_model, inputs = [ds, model_checkpoint, epochs])
