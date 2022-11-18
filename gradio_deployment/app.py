@@ -1,6 +1,6 @@
 import gradio as gr
-import tensorflow as tf
-from notebooks.starter_model_training import tokenize_function, create_dataset, compile_model, gen_text
+from notebooks.starter_model_training import create_dataset, compile_model, gen_text
+from transformers import DefaultDataCollator
 '''
 We want to create an application that allows the user to select a dataset from a specified list
 and pass that with specified parameters to a model to train it on.
@@ -12,16 +12,23 @@ Generate some text!
 
 MODEL = ""
 
-def train_model(dat, epochs, model_checkpoint):
+def train_model(dat, model_checkpoint, epochs):
     # trains model given parameters
 
     model = compile_model(model_checkpoint=model_checkpoint)
-    print(dat)
 
-    ds = create_dataset(dat)
-    tok_data = tokenize_function(ds, model_checkpoint)
+    ds = create_dataset(dat, model_checkpoint=model_checkpoint)
 
-    mod_history = model.fit(tok_data, epochs = epochs)
+    data_collator = DefaultDataCollator(return_tensors="tf")
+
+    train_set = ds["train"].to_tf_dataset(
+        columns=["attention_mask", "input_ids", "labels"],
+        shuffle=True,
+        batch_size=16,
+        collate_fn=data_collator,
+    )
+
+    mod_history = model.fit(train_set, epochs = epochs)
     MODEl = model
 
     return model
@@ -48,7 +55,7 @@ with demo:
             
             epochs = gr.Slider(minimum = 1, maximum = 10, value  = 1, step = 1, interactive = True)
            #block_size = gr.Dropdown([32, 64, 128, 256], value = 64)
-            model_checkpoint = gr.Dropdown(["distilgpt2"], value = "distilgpt2")
+            model_checkpoint = gr.Dropdown(["distilgpt2"], value = "distilgpt2", type = "value")
         with gr.Column():
              #train button
             begin_training = gr.Button("Begin Training!")
