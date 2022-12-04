@@ -17,6 +17,8 @@ SEGMENTS_INFO = ["start", "end", "text"]
 
 AUDIO_FILES = [".webm", ".mp3", ".flac", ".wav", ".m4a"]
 
+AUDIO_FEATURE = "audio"
+
 YT_OPTIONS = {
               "format": "bestaudio/best",
               "extractaudio": True,
@@ -26,7 +28,8 @@ YT_OPTIONS = {
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "mp3",
                 "preferredquality": "192",
-              }]
+              }],
+              "ignoreerrors": True
             }
 
 

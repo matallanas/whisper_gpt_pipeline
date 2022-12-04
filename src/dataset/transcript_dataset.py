@@ -4,8 +4,9 @@ from typing import Any, Optional
 import validators
 from downloader import WhisperPP, YoutubeDownloader
 from interpreter import WhisperInterpreter
-from datasets import load_dataset, concatenate_datasets, Dataset
+from datasets import load_dataset, concatenate_datasets, Dataset, Audio
 from dataset.hf_dataset import HFDataset
+from utils import AUDIO_FEATURE
 
 
 class TranscriptDataset(HFDataset):
@@ -38,7 +39,7 @@ class TranscriptDataset(HFDataset):
     if validators.url(input):
       self.from_url(input, download_path, overwrite, **whisper_postprocessor_config)
     else:
-      self.from_files(input, overwrite,  **whisper_postprocessor_config)
+      self.from_files(input, overwrite, **whisper_postprocessor_config)
 
   def from_url(
       self,
@@ -97,9 +98,19 @@ class TranscriptDataset(HFDataset):
       else:
         dataset = Dataset.from_list([result])
     else:
-      fileName = "tmp/*.json" if os.path.isdir(input) else input
-      dataset=load_dataset("json", data_files=glob.glob(fileName), split="train")
-    
+      fileName = os.path.join(input,"*.json") if os.path.isdir(input) else input
+      dataset = load_dataset("json", data_files=glob.glob(fileName), split="train")
+      # files = glob.glob(fileName)
+      # n = len(files) // 2 + 1
+      # groups = [files[i:i + n] for i in range(0, len(files), n)]
+      
+      # for g in groups:
+      #   print(len(g))
+      #   dataset = load_dataset("json", data_files=g, split="train")
+      #   self._concatenate_datasets(dataset)
+      #   print(self.dataset)
+      #   self.dataset.push_to_hub(repo_id=self.name, token=self.token, private=True)
+
     self._concatenate_datasets(dataset)
 
   def _fill_archive(self, archive_file: str):
@@ -120,9 +131,18 @@ class TranscriptDataset(HFDataset):
     Args:
         dataset (list | Dataset): Data of video transcription.
     """
+    dataset = dataset.cast_column(AUDIO_FEATURE, Audio())
+
     if not self.is_empty:
+      self.dataset["train"] = self.dataset["train"].cast(dataset.features)
       selectedIDs = list(set(dataset["id"])-set(self.dataset["train"]["id"]))
       filteredDataset = dataset.filter(lambda element: element["id"] in selectedIDs)
       self.dataset["train"] = concatenate_datasets([self.dataset["train"],filteredDataset])
     else:
-      self.dataset = dataset
+      # self.dataset = dataset
+      if self.dataset.num_rows == 0:
+        self.dataset = dataset
+      else:
+        self.dataset = self.dataset.cast(dataset.features)
+        self.dataset = concatenate_datasets([self.dataset,dataset])
+    
