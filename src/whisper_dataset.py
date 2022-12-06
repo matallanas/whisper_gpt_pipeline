@@ -1,13 +1,9 @@
-import glob
-import json
-import os
 from typing import Any
 import click
 from dataset import TranscriptDataset
-from datasets import load_dataset, Dataset, Audio
 from downloader import WhisperPP, YoutubeDownloader
 from interpreter import WhisperInterpreter
-from utils import AUDIO_FEATURE, json_dump
+from utils import AUDIO_FORMAT
 
 
 _global_options = [
@@ -89,10 +85,15 @@ def interpret(file_path: str, model_size: str, language: str, mode: str, write: 
     help="Location of the data, could be youtube url or a local path.")
 @click.option("--download-path", "-d", default="tmp/",
     help="Path to download and store files.")
+@click.option("--audio", "-a", is_flag=True, show_default=True, default=False,
+    help="Add audio feature to the dataset with the audio extracted.")
+@click.option("--audio-format", "-f", default="mp3",
+    type=click.Choice(AUDIO_FORMAT, case_sensitive=False),
+    help="Specific audio format")
 @click.option("--upload", "-u", is_flag=True, show_default=True, default=False,
     help="Upload dataset to the hub.")
 @click.option("--number-videos", "-v", default=0, help="Number of videos to process.")
-@click.option("--overwrite", "-o", default=False, help="Overwrite the data.")
+@click.option("--overwrite", "-o", is_flag=True, default=False, help="Overwrite the data.")
 @global_options
 def dataset(
   name: str,
@@ -104,6 +105,8 @@ def dataset(
   language: str,
   mode: str,
   write: bool,
+  audio: bool,
+  audio_format: str,
   number_videos: int,
   overwrite: bool
 ):
@@ -111,17 +114,16 @@ def dataset(
   Add the transcript of Youtube videos to a Hugging Face dataset
   """
 
-  ds = TranscriptDataset(name, token)
-  overwrite = False
+  ds = TranscriptDataset(name, token, audio)
   params = dict(
     model_size=model_size,
-    language=language, 
+    language=language,
     write=write,
+    audio_format = audio_format.lower(),
     number_videos=number_videos)
   if mode is not None:
     params["mode"] = mode
   ds.generate_dataset(input, download_path, overwrite, params)
-  print(ds.dataset)
   if upload or (overwrite and name != ""):
     ds.upload()
 
@@ -134,10 +136,15 @@ def dataset(
     help="Location of the data, could be youtube url or a local path.")
 @click.option("--download-path", "-d", default="tmp/",
     help="Path to download and store files.")
+@click.option("--audio", "-a", is_flag=True, show_default=True, default=False,
+    help="Add audio feature to the dataset with the audio extracted.")
+@click.option("--audio-format", "-f", default="mp3",
+    type=click.Choice(AUDIO_FORMAT, case_sensitive=False),
+    help="Specific audio format")
 @click.option("--upload", "-u", is_flag=True, show_default=True, default=False,
     help="Upload dataset to the hub.")
 @click.option("--number-videos", "-v", default=0, help="Number of videos to process.")
-@click.option("--overwrite", "-o", default=False, help="Overwrite the data.")
+@click.option("--overwrite", "-o", is_flag=True, default=False, help="Overwrite the data.")
 @global_options
 def audio_dataset(
   name: str,
@@ -149,6 +156,8 @@ def audio_dataset(
   language: str,
   mode: str,
   write: bool,
+  audio: bool,
+  audio_format: str,
   number_videos: int,
   overwrite: bool
 ):
@@ -156,50 +165,16 @@ def audio_dataset(
   Add the transcript of Youtube videos to a Hugging Face dataset
   """
 
-  #ds = TranscriptDataset(name, token)
-  # overwrite = False
-  # params = dict(
-  #   model_size=model_size,
-  #   language=language, 
-  #   write=write,
-  #   number_videos=number_videos)
-  # if mode is not None:
-  #   params["mode"] = mode
-  # ds.generate_dataset(input, download_path, overwrite, params)
-
-  #print(ds.dataset)  
-  groups = []
-  group = []
-  for file in glob.glob(os.path.join(input,"*.json")):
-    group.append(file)
-    if len(group)==1000:
-      groups.append(group)
-      group=[]
-  
-  groups.append(group)
-
-  for group in groups:
-    print(len(group))
-
-
-  #ds.dataset.push_to_hub(repo_id=name, token=token)
-
-  # Write the audio
-  #print(glob.glob(os.path.join(input,"*.json")))
-  #for file in glob.glob(os.path.join(input,"*.json")):
-  #  with open(file,"r") as f:
-  #    record = json.loads(f.read())
-  #  record["audio"]=file.split('.')[0]+".mp3"
-  #  json_dump(record, file)
-
-  
-
-  #result["audio"]="data/ZEhOhU8zRbk.mp3"
-  #audio_dataset = Dataset.from_list(result)
-  #audio_dataset = audio_dataset.cast_column(AUDIO_FEATURE, Audio())
-  #print(audio_dataset[0]["audio"])
-  #if upload or (overwrite and name != ""):
-  #  ds.upload()
+  ds = TranscriptDataset(name, token, audio)
+  i = 339
+  print(ds.dataset["train"].select([['id', 'channel', 'channel_id', 'title', 'categories', 'tags', 'description', 'text', 'segments']]))
+  # for e in ds.dataset["train"]:
+  #   title = e["title"]
+  #   if '#' in title:
+  #     print(f'{i} - {title.split("#")[1]}')
+  #   else:
+  #     print(f'{i} - {title}')
+  #   i -= 1 
 
 
 if __name__ == "__main__":

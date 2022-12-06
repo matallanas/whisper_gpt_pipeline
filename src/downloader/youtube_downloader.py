@@ -8,7 +8,7 @@ from utils import YT_OPTIONS
 class YoutubeDownloader(Downloader):
   """Download videos from youtube giving a configuration."""
 
-  def __init__(self, download_path:str):
+  def __init__(self, download_path:str, audio_format:str = "mp3"):
     """Create a downloader from youtube using specifying the path to save the output.
 
     Args:
@@ -17,6 +17,9 @@ class YoutubeDownloader(Downloader):
     super().__init__(download_path)
     self._ydl_options = YT_OPTIONS
     self._ydl_options["outtmpl"] = os.path.join(download_path,"%(id)s.%(ext)s")
+    if audio_format != "mp3":
+      self._ydl_options["audioformat"] = audio_format
+      self._ydl_options["postprocessors"][0]["preferredcodec"] = audio_format
 
 
   def download(self, url: str, CustomPP: PostProcessor, when: str = "post_process"):

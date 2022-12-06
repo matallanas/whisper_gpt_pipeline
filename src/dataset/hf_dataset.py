@@ -7,7 +7,7 @@ from datasets.data_files import EmptyDatasetError
 class HFDataset(ABC):
   """Create a dataset to save the transcripts from Youtube."""
 
-  def __init__(self, name: str, token: Optional[str] = None):
+  def __init__(self, name: str, token: Optional[str] = None, audio: bool = False):
     """Initialize the Hugging Face dataset.
 
     Args:
@@ -17,6 +17,7 @@ class HFDataset(ABC):
     """
     self.name = name
     self.token = token
+    self.audio = audio
     if name != "":
       self._init_dataset()
     else:
