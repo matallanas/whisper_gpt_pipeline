@@ -21,7 +21,6 @@ class YoutubeDownloader(Downloader):
       self._ydl_options["audioformat"] = audio_format
       self._ydl_options["postprocessors"][0]["preferredcodec"] = audio_format
 
-
   def download(self, url: str, CustomPP: PostProcessor, when: str = "post_process"):
     """Download the YouTube content.
 
@@ -34,6 +33,15 @@ class YoutubeDownloader(Downloader):
     """
     with yt_dlp.YoutubeDL(self._ydl_options) as ydl:
       ydl.add_post_processor(CustomPP, when=when)
+      ydl.download(url)
+  
+  def download(self, url: str):
+    """Download the YouTube content.
+
+    Args:
+      url: str, Video, playlist or channel video list from youtube.
+    """
+    with yt_dlp.YoutubeDL(self._ydl_options) as ydl:
       ydl.download(url)
   
   @property

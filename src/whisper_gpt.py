@@ -34,6 +34,9 @@ def cli():
 @click.argument("url")
 @click.option("--download-path", "-d", default="tmp/",
               help="Path to download and store files")
+@click.option("--audio-format", "-f", default="mp3",
+              type=click.Choice(AUDIO_FORMAT, case_sensitive=False),
+              help="Specific audio format")
 @global_options
 def download_url(
   url: str,
@@ -41,6 +44,7 @@ def download_url(
   model_size: str,
   language: str,
   mode: str,
+  audio_format: str,
   write: bool
 ):
   """
@@ -54,7 +58,7 @@ def download_url(
     write=write
   )
   whisperPP = WhisperPP(data, **whisper_options)
-  downloader = YoutubeDownloader(download_path)
+  downloader = YoutubeDownloader(download_path, audio_format.lower())
   downloader.download(url, whisperPP)
   return data
 
