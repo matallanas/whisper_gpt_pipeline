@@ -1,9 +1,10 @@
+import os
 import re
 from typing import Any, Optional, Union
 from interpreter import WhisperInterpreter
-from utils import VIDEO_INFO, json_dump
+from utils import AUDIO_FEATURE, VIDEO_INFO, json_dump
 from yt_dlp.postprocessor import PostProcessor
-from datasets import Dataset
+from datasets import Dataset, Audio
 
 
 class WhisperPP(PostProcessor):
@@ -27,6 +28,7 @@ class WhisperPP(PostProcessor):
     self.videos_to_process = self._options.pop("number_videos",0)
     self.repoId = self._options.pop("repoId",self._get_name())
     self.token = self._options.pop("token",None)
+    self.audio = self._options.pop("audio",False)
   
   def run(self, info: Any):
     """Runs the process the audio extracted from the video through whisper.
@@ -44,6 +46,8 @@ class WhisperPP(PostProcessor):
     self._update_data(result)
     if self._write:
       json_dump(result, f"{info['filepath'].split('.')[0]}.json")
+    elif not self.audio:
+      os.remove(info['filepath'])
     return [], info
 
   def _update_data(self, record: dict):
@@ -58,6 +62,8 @@ class WhisperPP(PostProcessor):
       self.data.append(record)
     else:
       self.data = self.data.add_item(record)
+      if self.data.num_rows == 1 and self.audio:
+        self.data = self.data.cast_column(AUDIO_FEATURE, Audio())
       if self.videos_to_process != 0 and self.data.num_rows%self.videos_to_process==0:
         self.data.push_to_hub(repo_id=self.repoId, token=self.token)
 

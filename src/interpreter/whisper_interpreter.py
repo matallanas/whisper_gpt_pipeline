@@ -2,7 +2,7 @@ import glob
 from typing import Any, Optional
 import whisper, os
 from interpreter import Interpreter
-from utils import SEGMENTS_INFO, AUDIO_FILES, json_dump
+from utils import AUDIO_FEATURE, SEGMENTS_INFO, AUDIO_FILES, json_dump
 
 
 class WhisperInterpreter(Interpreter):
@@ -100,6 +100,7 @@ class WhisperInterpreter(Interpreter):
     """
     write = kwargs.pop("write", False)
     result = self._formatter_result(self.model.transcribe(file_path, **kwargs))
+    result[AUDIO_FEATURE] = file_path
     if write:
       json_dump(result, f"{file_path.split('.')[0]}.json")
 

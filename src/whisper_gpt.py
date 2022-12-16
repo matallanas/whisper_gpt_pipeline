@@ -3,6 +3,7 @@ import click
 from dataset import TranscriptDataset
 from downloader import WhisperPP, YoutubeDownloader
 from interpreter import WhisperInterpreter
+from utils import AUDIO_FORMAT
 
 
 _global_options = [
@@ -33,6 +34,9 @@ def cli():
 @click.argument("url")
 @click.option("--download-path", "-d", default="tmp/",
               help="Path to download and store files")
+@click.option("--audio-format", "-f", default="mp3",
+              type=click.Choice(AUDIO_FORMAT, case_sensitive=False),
+              help="Specific audio format")
 @global_options
 def download_url(
   url: str,
@@ -40,6 +44,7 @@ def download_url(
   model_size: str,
   language: str,
   mode: str,
+  audio_format: str,
   write: bool
 ):
   """
@@ -53,7 +58,7 @@ def download_url(
     write=write
   )
   whisperPP = WhisperPP(data, **whisper_options)
-  downloader = YoutubeDownloader(download_path)
+  downloader = YoutubeDownloader(download_path, audio_format.lower())
   downloader.download(url, whisperPP)
   return data
 
@@ -84,10 +89,15 @@ def interpret(file_path: str, model_size: str, language: str, mode: str, write: 
     help="Location of the data, could be youtube url or a local path.")
 @click.option("--download-path", "-d", default="tmp/",
     help="Path to download and store files.")
+@click.option("--audio", "-a", is_flag=True, show_default=True, default=False,
+    help="Add audio feature to the dataset with the audio extracted.")
+@click.option("--audio-format", "-f", default="mp3",
+    type=click.Choice(AUDIO_FORMAT, case_sensitive=False),
+    help="Specific audio format")
 @click.option("--upload", "-u", is_flag=True, show_default=True, default=False,
     help="Upload dataset to the hub.")
 @click.option("--number-videos", "-v", default=0, help="Number of videos to process.")
-@click.option("--overwrite", "-o", default=False, help="Overwrite the data.")
+@click.option("--overwrite", "-o", is_flag=True, default=False, help="Overwrite the data.")
 @global_options
 def dataset(
   name: str,
@@ -99,6 +109,8 @@ def dataset(
   language: str,
   mode: str,
   write: bool,
+  audio: bool,
+  audio_format: str,
   number_videos: int,
   overwrite: bool
 ):
@@ -106,20 +118,18 @@ def dataset(
   Add the transcript of Youtube videos to a Hugging Face dataset
   """
 
-  ds = TranscriptDataset(name, token)
-  overwrite = False
+  ds = TranscriptDataset(name, token, audio)
   params = dict(
     model_size=model_size,
-    language=language, 
+    language=language,
     write=write,
+    audio_format = audio_format.lower(),
     number_videos=number_videos)
   if mode is not None:
     params["mode"] = mode
   ds.generate_dataset(input, download_path, overwrite, params)
-  print(ds.dataset)
   if upload or (overwrite and name != ""):
     ds.upload()
-
 
 if __name__ == "__main__":
   cli()

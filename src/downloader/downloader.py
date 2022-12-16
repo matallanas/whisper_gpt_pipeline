@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import os
 
 
 class Downloader(ABC):
@@ -12,6 +13,8 @@ class Downloader(ABC):
       download_path: str, Path where the resultant format is going to be stored.
     """
     self.download_path = download_path
+    if not os.path.exists(self.download_path):
+      os.makedirs(self.download_path)
 
   @abstractmethod
   def download(self):

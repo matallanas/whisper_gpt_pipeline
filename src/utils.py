@@ -15,7 +15,11 @@ TRANSCRIPT_INFO = ["text", "segments"]
 
 SEGMENTS_INFO = ["start", "end", "text"]
 
-AUDIO_FILES = [".webm", ".mp3", ".flac", ".wav", ".m4a"]
+AUDIO_FILES = [".webm", ".mp3", ".flac", ".wav", ".m4a", ".ogg", ".opus"]
+
+AUDIO_FORMAT = ["aac", "alac", "flac", "m4a", "mp3", "opus", "vorbis", "wav"]
+
+AUDIO_FEATURE = "audio"
 
 YT_OPTIONS = {
               "format": "bestaudio/best",
@@ -26,7 +30,8 @@ YT_OPTIONS = {
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "mp3",
                 "preferredquality": "192",
-              }]
+              }],
+              "ignoreerrors": True
             }
 
 
